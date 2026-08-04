@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
-import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import { MapPin, Users, Wifi, Bed, Car, ShieldCheck } from "lucide-react";
 import Navbar from "../components/common/Navbar";
 import Loader from "../components/common/Loader";
 import RatingStars from "../components/common/RatingStars";
+import PropertyMapView from "../components/property/PropertyMapView";
 import { propertyApi, reviewApi, bookingApi } from "../api/endpoints";
 import { useAuth } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
@@ -21,10 +21,6 @@ const PropertyDetailsPage = () => {
   const [activeImage, setActiveImage] = useState(0);
   const [loading, setLoading] = useState(true);
   const [requesting, setRequesting] = useState(false);
-
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "",
-  });
 
   const load = async () => {
     setLoading(true);
@@ -173,17 +169,11 @@ const PropertyDetailsPage = () => {
             )}
 
             {/* Map */}
-            {location?.lat && location?.lng && isLoaded && (
+            {location?.lat && location?.lng && (
               <div className="mt-6">
                 <h2 className="font-semibold text-ink-900 mb-3">Location</h2>
                 <div className="rounded-lg overflow-hidden">
-                  <GoogleMap
-                    center={{ lat: location.lat, lng: location.lng }}
-                    zoom={15}
-                    mapContainerStyle={{ width: "100%", height: "260px" }}
-                  >
-                    <Marker position={{ lat: location.lat, lng: location.lng }} />
-                  </GoogleMap>
+                  <PropertyMapView lat={location.lat} lng={location.lng} label={propertyName} />
                 </div>
               </div>
             )}

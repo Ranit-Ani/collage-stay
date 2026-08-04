@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import DashboardLayout from "../../components/common/DashboardLayout";
+import LocationPickerMap from "../../components/property/LocationPickerMap";
 import { propertyApi } from "../../api/endpoints";
 
 const propertyTypes = [
@@ -14,6 +15,7 @@ const emptyForm = {
   contactNumber: "",
   email: "",
   address: { fullAddress: "", area: "", city: "", state: "", pincode: "" },
+  location: { lat: null, lng: null },
   nearbyCollege: "",
   distanceFromCollege: "",
   pricing: { monthlyRent: "", securityDeposit: "", electricityCharges: "", waterCharges: "", internetCharges: "" },
@@ -130,6 +132,16 @@ const AddPropertyPage = () => {
                 onChange={(e) => updateNested("address", "pincode", e.target.value)} />
             </div>
           </div>
+        </section>
+
+        {/* Location on map */}
+        <section className="card p-6 space-y-4">
+          <h2 className="font-semibold text-ink-900">Location on Map</h2>
+          <LocationPickerMap
+            lat={form.location.lat}
+            lng={form.location.lng}
+            onChange={([lat, lng]) => setForm((prev) => ({ ...prev, location: { lat, lng } }))}
+          />
         </section>
 
         {/* Pricing */}

@@ -5,7 +5,7 @@ home owners for rooms, hostels, PGs, flats, and mess services.
 
 ## Tech Stack
 
-- **Frontend:** React (Vite), Tailwind CSS, React Router, Axios, Socket.IO Client, Google Maps
+- **Frontend:** React (Vite), Tailwind CSS, React Router, Axios, Socket.IO Client, Leaflet + OpenStreetMap (free, no API key)
 - **Backend:** Node.js, Express.js, MVC architecture, Socket.IO
 - **Database:** MongoDB Atlas (Mongoose)
 - **Auth:** JWT in httpOnly cookies, bcrypt password hashing, mandatory email verification
@@ -37,7 +37,7 @@ college-stay/
 │   │   ├── context/                # AuthContext, SocketContext
 │   │   ├── components/
 │   │   │   ├── common/              # Navbar, Sidebar, DashboardLayout, ProtectedRoute, Loader, Modal, RatingStars, StatusBadge
-│   │   │   └── property/            # PropertyCard, SearchFilters
+│   │   │   └── property/            # PropertyCard, SearchFilters, PropertyMapView, LocationPickerMap
 │   │   ├── pages/
 │   │   │   ├── auth/                # Register, Login, VerifyEmail, ForgotPassword, ResetPassword
 │   │   │   ├── student/             # Dashboard, Favourites, BookingHistory, Profile
@@ -73,7 +73,7 @@ npm run seed:admin
 
 ```bash
 cd frontend
-cp .env.example .env   # point to your backend URL + Google Maps key
+cp .env.example .env   # point to your backend URL
 npm install
 npm run dev              # starts on http://localhost:5173
 ```
@@ -85,13 +85,17 @@ npm run dev              # starts on http://localhost:5173
 | MongoDB Atlas | Database | `backend/.env` → `MONGO_URI` |
 | Brevo (Sendinblue) | Transactional email (verification, password reset) | `backend/.env` → `BREVO_SMTP_*`, `BREVO_API_KEY` |
 | Cloudinary | Property & profile image storage | `backend/.env` → `CLOUDINARY_*` |
-| Google Maps Platform | Property location display | `frontend/.env` → `VITE_GOOGLE_MAPS_API_KEY` |
+
+**Maps require no account or API key.** Location display and picking use
+[Leaflet](https://leafletjs.com/) with free [OpenStreetMap](https://www.openstreetmap.org/) tiles,
+and address search uses OpenStreetMap's free [Nominatim](https://nominatim.org/) geocoding API.
+Nothing to sign up for, no billing, no key to configure.
 
 ## Core Flows Implemented
 
 - **Auth:** register → email verification (mandatory before login) → JWT httpOnly cookie login → forgot/reset password → logout
 - **Roles:** Student, Home Owner, Admin — each with separate dashboards and protected routes
-- **Properties:** create (pending admin approval) → search/filter → detail view with Google Map → image gallery
+- **Properties:** create (pending admin approval) → search/filter → detail view with free OpenStreetMap location → image gallery
 - **Booking:** student sends request → owner accepts/rejects → real-time status push via Socket.IO → notification created
 - **Reviews:** one review per student per property, average rating recalculated on every change
 - **Admin:** approve/reject listings, block/delete users, moderate reviews, dashboard statistics
@@ -116,6 +120,6 @@ express-mongo-sanitize · xss-clean · multer file-type/size limits before Cloud
 This is a complete, working foundation covering every feature area in the PRD — auth, all
 three role dashboards, property CRUD with image upload, search/filter, the booking workflow,
 reviews, notifications, real-time Socket.IO updates, and admin moderation. Wire up your own
-API keys (Mongo, Brevo, Cloudinary, Google Maps) and it runs end-to-end. From here it's meant
+API keys (Mongo, Brevo, Cloudinary) and it runs end-to-end — maps need no key at all. From here it's meant
 to be extended: pagination polish, richer admin analytics, chat between student and owner, etc.
 can be layered on top of this structure.

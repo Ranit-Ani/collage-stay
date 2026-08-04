@@ -5,6 +5,7 @@ import { Trash2 } from "lucide-react";
 import DashboardLayout from "../../components/common/DashboardLayout";
 import Loader from "../../components/common/Loader";
 import StatusBadge from "../../components/common/StatusBadge";
+import LocationPickerMap from "../../components/property/LocationPickerMap";
 import { propertyApi } from "../../api/endpoints";
 
 const EditPropertyPage = () => {
@@ -43,6 +44,7 @@ const EditPropertyPage = () => {
         contactNumber: property.contactNumber,
         email: property.email,
         address: property.address,
+        location: property.location,
         nearbyCollege: property.nearbyCollege,
         distanceFromCollege: property.distanceFromCollege,
         pricing: property.pricing,
@@ -141,6 +143,16 @@ const EditPropertyPage = () => {
             </div>
           </div>
           <button onClick={handleAvailabilityUpdate} className="btn-secondary">Update Availability</button>
+        </section>
+
+        {/* Location on map */}
+        <section className="card p-6 space-y-4">
+          <h2 className="font-semibold text-ink-900">Location on Map</h2>
+          <LocationPickerMap
+            lat={property.location?.lat}
+            lng={property.location?.lng}
+            onChange={([lat, lng]) => updateField("location", { lat, lng })}
+          />
         </section>
 
         {/* Basic details */}
