@@ -5,6 +5,7 @@ import { MapPin, Users, Wifi, Bed, Car, ShieldCheck } from "lucide-react";
 import Navbar from "../components/common/Navbar";
 import Loader from "../components/common/Loader";
 import RatingStars from "../components/common/RatingStars";
+import Lightbox from "../components/common/Lightbox";
 import PropertyMapView from "../components/property/PropertyMapView";
 import { propertyApi, reviewApi, bookingApi } from "../api/endpoints";
 import { useAuth } from "../context/AuthContext";
@@ -21,6 +22,7 @@ const PropertyDetailsPage = () => {
   const [activeImage, setActiveImage] = useState(0);
   const [loading, setLoading] = useState(true);
   const [requesting, setRequesting] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -51,6 +53,31 @@ const PropertyDetailsPage = () => {
     return () => socket.off("availabilityUpdated", handler);
   }, [socket, id]);
 
+  // Refresh reviews and property details (rating, pricing, images, etc.)
+  // as soon as anyone changes them, without the visitor needing to reload
+  useEffect(() => {
+    if (!socket) return;
+    const onPropertyChange = ({ propertyId }) => {
+      if (propertyId === id) load();
+    };
+    const onReviewChange = ({ propertyId }) => {
+      if (propertyId === id) {
+        reviewApi.getForProperty(id).then(({ data }) => setReviews(data.data.reviews));
+      }
+    };
+    socket.on("propertyUpdated", onPropertyChange);
+    socket.on("reviewAdded", onReviewChange);
+    socket.on("reviewUpdated", onReviewChange);
+    socket.on("reviewDeleted", onReviewChange);
+    return () => {
+      socket.off("propertyUpdated", onPropertyChange);
+      socket.off("reviewAdded", onReviewChange);
+      socket.off("reviewUpdated", onReviewChange);
+      socket.off("reviewDeleted", onReviewChange);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [socket, id]);
+
   const handleBookingRequest = async () => {
     if (requesting) return; // guards against a fast double-click firing two requests
     if (!user) return toast.error("Please log in as a student to send a booking request.");
@@ -79,11 +106,18 @@ const PropertyDetailsPage = () => {
         <div>
           {/* Image gallery */}
           <div className="card overflow-hidden">
-            <img
-              src={images?.[activeImage]?.url || "https://placehold.co/800x500?text=CollegeStay"}
-              alt={propertyName}
-              className="w-full aspect-[16/10] object-cover"
-            />
+            <button
+              type="button"
+              onClick={() => images?.length && setLightboxOpen(true)}
+              className="block w-full cursor-zoom-in"
+              aria-label="View full photo"
+            >
+              <img
+                src={images?.[activeImage]?.url || "https://placehold.co/800x500?text=CollegeStay"}
+                alt={propertyName}
+                className="w-full aspect-[16/10] object-cover"
+              />
+            </button>
             {images?.length > 1 && (
               <div className="flex gap-2 p-3 overflow-x-auto">
                 {images.map((img, i) => (
@@ -240,6 +274,15 @@ const PropertyDetailsPage = () => {
           </div>
         </aside>
       </div>
+
+      {lightboxOpen && (
+        <Lightbox
+          images={images}
+          activeIndex={activeImage}
+          onClose={() => setLightboxOpen(false)}
+          onNavigate={setActiveImage}
+        />
+      )}
     </div>
   );
 };

@@ -4,13 +4,28 @@ import DashboardLayout from "../../components/common/DashboardLayout";
 import Loader from "../../components/common/Loader";
 import StatCard from "../../components/common/StatCard";
 import { adminApi } from "../../api/endpoints";
+import { useSocket } from "../../context/SocketContext";
 
 const AdminDashboard = () => {
+  const { socket } = useSocket();
   const [stats, setStats] = useState(null);
 
+  const load = () => adminApi.getDashboardStats().then(({ data }) => setStats(data.data));
+
+  useEffect(() => { load(); }, []);
+
+  // Keep the overview numbers live instead of requiring a manual refresh
   useEffect(() => {
-    adminApi.getDashboardStats().then(({ data }) => setStats(data.data));
-  }, []);
+    if (!socket) return;
+    const refresh = () => load();
+    const events = [
+      "propertySubmitted", "propertyApproved", "propertyRejected", "propertyDeleted",
+      "newUserRegistered", "userDeleted", "reviewAdded", "reviewDeleted",
+      "bookingRequested", "bookingAccepted", "bookingRejected",
+    ];
+    events.forEach((ev) => socket.on(ev, refresh));
+    return () => events.forEach((ev) => socket.off(ev, refresh));
+  }, [socket]);
 
   if (!stats) return <DashboardLayout><Loader /></DashboardLayout>;
 

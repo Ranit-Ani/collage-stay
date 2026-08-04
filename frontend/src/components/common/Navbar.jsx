@@ -30,9 +30,11 @@ const Navbar = () => {
         </Link>
 
         <nav className="hidden md:flex items-center gap-1 text-sm font-medium text-ink-600">
-          <Link to="/search" className="px-3 py-2 rounded-lg hover:bg-ink-50 hover:text-ink-900 transition-colors">
-            Find a Place
-          </Link>
+          {(!user || user.role === "student") && (
+            <Link to="/search" className="px-3 py-2 rounded-lg hover:bg-ink-50 hover:text-ink-900 transition-colors">
+              Find a Place
+            </Link>
+          )}
           {user && (
             <Link to={roleHome[user.role] || "/"} className="px-3 py-2 rounded-lg hover:bg-ink-50 hover:text-ink-900 transition-colors">
               Dashboard
@@ -71,7 +73,9 @@ const Navbar = () => {
 
       {open && (
         <div className="md:hidden border-t border-ink-100 px-4 py-3 space-y-2">
-          <Link to="/search" className="block py-1.5 text-sm text-ink-700">Find a Place</Link>
+          {(!user || user.role === "student") && (
+            <Link to="/search" className="block py-1.5 text-sm text-ink-700">Find a Place</Link>
+          )}
           {user ? (
             <>
               <Link to={roleHome[user.role] || "/"} className="block py-1.5 text-sm text-ink-700">

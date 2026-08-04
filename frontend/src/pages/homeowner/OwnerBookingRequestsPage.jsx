@@ -6,7 +6,7 @@ import StatusBadge from "../../components/common/StatusBadge";
 import { bookingApi } from "../../api/endpoints";
 import { useSocket } from "../../context/SocketContext";
 
-const TABS = ["Pending", "Accepted", "Rejected", "Cancelled"];
+const TABS = ["All", "Pending", "Accepted", "Rejected", "Cancelled"];
 
 const OwnerBookingRequestsPage = () => {
   const { socket } = useSocket();
@@ -16,7 +16,8 @@ const OwnerBookingRequestsPage = () => {
 
   const load = async (status) => {
     setLoading(true);
-    const { data } = await bookingApi.getOwnerRequests(status);
+    // "All" means no status filter — the backend returns every request for this owner
+    const { data } = await bookingApi.getOwnerRequests(status === "All" ? undefined : status);
     setBookings(data.data.bookings);
     setLoading(false);
   };
@@ -72,7 +73,9 @@ const OwnerBookingRequestsPage = () => {
       {loading ? (
         <Loader />
       ) : bookings.length === 0 ? (
-        <div className="card p-10 text-center text-ink-500">No {tab.toLowerCase()} requests.</div>
+        <div className="card p-10 text-center text-ink-500">
+          {tab === "All" ? "No booking requests yet." : `No ${tab.toLowerCase()} requests.`}
+        </div>
       ) : (
         <div className="space-y-4">
           {bookings.map((b) => (

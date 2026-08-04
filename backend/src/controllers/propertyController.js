@@ -39,6 +39,9 @@ const createProperty = asyncHandler(async (req, res) => {
     status: "pending",
   });
 
+  const io = req.app.get("io");
+  io.to("admins").emit("propertySubmitted", { propertyId: property._id });
+
   sendSuccess(res, 201, "Property submitted for admin approval.", { property });
 });
 
@@ -71,6 +74,10 @@ const updateProperty = asyncHandler(async (req, res) => {
   });
 
   await property.save();
+
+  const io = req.app.get("io");
+  io.emit("propertyUpdated", { propertyId: property._id });
+
   sendSuccess(res, 200, "Property updated successfully.", { property });
 });
 
@@ -120,6 +127,8 @@ const addImages = asyncHandler(async (req, res) => {
   property.images.push(...uploads);
   await property.save();
 
+  req.app.get("io").emit("propertyUpdated", { propertyId: property._id });
+
   sendSuccess(res, 200, "Images added.", { images: property.images });
 });
 
@@ -137,6 +146,8 @@ const deleteImage = asyncHandler(async (req, res) => {
   await deleteFromCloudinary(decodedPublicId);
   property.images = property.images.filter((img) => img.publicId !== decodedPublicId);
   await property.save();
+
+  req.app.get("io").emit("propertyUpdated", { propertyId: property._id });
 
   sendSuccess(res, 200, "Image deleted.", { images: property.images });
 });
@@ -157,6 +168,8 @@ const deleteProperty = asyncHandler(async (req, res) => {
     property.images.map((img) => deleteFromCloudinary(img.publicId))
   );
   await property.deleteOne();
+
+  req.app.get("io").emit("propertyDeleted", { propertyId: property._id });
 
   sendSuccess(res, 200, "Property deleted successfully.");
 });

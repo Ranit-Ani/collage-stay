@@ -31,6 +31,8 @@ const register = asyncHandler(async (req, res) => {
   const otp = user.generateEmailVerificationOTP();
   await user.save();
 
+  req.app.get("io").to("admins").emit("newUserRegistered", { userId: user._id, role: user.role });
+
   // Respond immediately — don't make the user wait on SMTP, which can be slow
   // or hang if Brevo is misconfigured. The email is fired in the background;
   // if it fails, the "Resend code" button on the OTP page covers that.
@@ -130,9 +132,13 @@ const login = asyncHandler(async (req, res) => {
     throw new AppError("Please verify your email before logging in.", 403);
   }
 
-  sendTokenCookie(res, user._id, user.role);
+  const token = sendTokenCookie(res, user._id, user.role);
 
-  sendSuccess(res, 200, "Login successful.", { user: user.toSafeObject() });
+  // The cookie is shared by every tab in the browser, so we also hand the
+  // token back in the body — the frontend stores it in sessionStorage
+  // (per-tab) and sends it as a Bearer token, which lets each tab stay
+  // logged in as its own user.
+  sendSuccess(res, 200, "Login successful.", { user: user.toSafeObject(), token });
 });
 
 // @desc    Logout user - clears auth cookie

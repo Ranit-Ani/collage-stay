@@ -67,6 +67,14 @@ const toggleBlockUser = asyncHandler(async (req, res) => {
   user.isBlocked = !user.isBlocked;
   await user.save();
 
+  const io = req.app.get("io");
+  // Other admin tabs/devices should see the status flip immediately
+  io.to("admins").emit("userStatusChanged", { userId: user._id, isBlocked: user.isBlocked });
+  // If this user is blocked, sign their active session(s) out right away
+  if (user.isBlocked) {
+    io.to(user._id.toString()).emit("accountBlocked");
+  }
+
   sendSuccess(res, 200, `User ${user.isBlocked ? "blocked" : "unblocked"} successfully.`, {
     user: user.toSafeObject(),
   });
@@ -80,7 +88,11 @@ const deleteUser = asyncHandler(async (req, res) => {
   if (!user) throw new AppError("User not found.", 404);
   if (user.role === "admin") throw new AppError("Cannot delete an admin account.", 400);
 
+  const io = req.app.get("io");
+  io.to(user._id.toString()).emit("accountBlocked"); // force out any active session
   await user.deleteOne();
+  io.to("admins").emit("userDeleted", { userId: user._id, role: user.role });
+
   sendSuccess(res, 200, "User deleted successfully.");
 });
 
@@ -163,6 +175,8 @@ const deleteAnyProperty = asyncHandler(async (req, res) => {
   if (!property) throw new AppError("Property not found.", 404);
   await property.deleteOne();
 
+  req.app.get("io").emit("propertyDeleted", { propertyId: property._id });
+
   sendSuccess(res, 200, "Property deleted successfully.");
 });
 
@@ -184,7 +198,23 @@ const getAllReviews = asyncHandler(async (req, res) => {
 const deleteReview = asyncHandler(async (req, res) => {
   const review = await Review.findById(req.params.id);
   if (!review) throw new AppError("Review not found.", 404);
+  const propertyId = review.property;
   await review.deleteOne();
+
+  if (propertyId) {
+    const stats = await Review.aggregate([
+      { $match: { property: propertyId } },
+      { $group: { _id: "$property", avgRating: { $avg: "$rating" }, count: { $sum: 1 } } },
+    ]);
+    await Property.findByIdAndUpdate(propertyId, {
+      averageRating: stats.length > 0 ? Math.round(stats[0].avgRating * 10) / 10 : 0,
+      totalReviews: stats.length > 0 ? stats[0].count : 0,
+    });
+  }
+
+  const io = req.app.get("io");
+  io.emit("reviewDeleted", { reviewId: req.params.id, propertyId });
+  if (propertyId) io.emit("propertyUpdated", { propertyId }); // rating average changed
 
   sendSuccess(res, 200, "Review deleted successfully.");
 });

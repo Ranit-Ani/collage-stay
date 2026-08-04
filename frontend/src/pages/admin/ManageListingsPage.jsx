@@ -4,8 +4,10 @@ import DashboardLayout from "../../components/common/DashboardLayout";
 import Loader from "../../components/common/Loader";
 import Modal from "../../components/common/Modal";
 import { adminApi } from "../../api/endpoints";
+import { useSocket } from "../../context/SocketContext";
 
 const ManageListingsPage = () => {
+  const { socket } = useSocket();
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [rejectTarget, setRejectTarget] = useState(null);
@@ -19,6 +21,22 @@ const ManageListingsPage = () => {
   };
 
   useEffect(() => { load(); }, []);
+
+  // A new submission, or another admin acting on a listing, shows up instantly
+  useEffect(() => {
+    if (!socket) return;
+    const refresh = () => load();
+    socket.on("propertySubmitted", refresh);
+    socket.on("propertyApproved", refresh);
+    socket.on("propertyRejected", refresh);
+    socket.on("propertyDeleted", refresh);
+    return () => {
+      socket.off("propertySubmitted", refresh);
+      socket.off("propertyApproved", refresh);
+      socket.off("propertyRejected", refresh);
+      socket.off("propertyDeleted", refresh);
+    };
+  }, [socket]);
 
   const handleApprove = async (id) => {
     try {

@@ -5,8 +5,10 @@ import DashboardLayout from "../../components/common/DashboardLayout";
 import Loader from "../../components/common/Loader";
 import PropertyCard from "../../components/property/PropertyCard";
 import { studentApi } from "../../api/endpoints";
+import { useSocket } from "../../context/SocketContext";
 
 const FavouritesPage = () => {
+  const { socket } = useSocket();
   const [favourites, setFavourites] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -17,6 +19,25 @@ const FavouritesPage = () => {
   };
 
   useEffect(() => { load(); }, []);
+
+  // Live seat counts, and drop a favourite instantly if it's ever removed
+  useEffect(() => {
+    if (!socket) return;
+    const onAvailability = ({ propertyId, availableSeats }) => {
+      setFavourites((prev) =>
+        prev.map((p) => (p._id === propertyId ? { ...p, availableSeats } : p))
+      );
+    };
+    const onDeleted = ({ propertyId }) => {
+      setFavourites((prev) => prev.filter((p) => p._id !== propertyId));
+    };
+    socket.on("availabilityUpdated", onAvailability);
+    socket.on("propertyDeleted", onDeleted);
+    return () => {
+      socket.off("availabilityUpdated", onAvailability);
+      socket.off("propertyDeleted", onDeleted);
+    };
+  }, [socket]);
 
   const handleRemove = async (propertyId) => {
     try {

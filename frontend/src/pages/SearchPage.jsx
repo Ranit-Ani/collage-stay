@@ -43,6 +43,24 @@ const SearchPage = () => {
     return () => socket.off("availabilityUpdated", handler);
   }, [socket]);
 
+  // A listing newly approved, edited, or removed should be reflected in
+  // search results right away, without the student needing to refresh
+  useEffect(() => {
+    if (!socket) return;
+    const refresh = () => fetchProperties(filters, meta.page || 1);
+    socket.on("propertyApproved", refresh);
+    socket.on("propertyRejected", refresh);
+    socket.on("propertyUpdated", refresh);
+    socket.on("propertyDeleted", refresh);
+    return () => {
+      socket.off("propertyApproved", refresh);
+      socket.off("propertyRejected", refresh);
+      socket.off("propertyUpdated", refresh);
+      socket.off("propertyDeleted", refresh);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [socket, filters, meta.page]);
+
   return (
     <div className="min-h-screen bg-ink-50">
       <Navbar />

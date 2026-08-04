@@ -28,10 +28,12 @@ const MyPropertiesPage = () => {
     socket.on("propertyApproved", refresh);
     socket.on("propertyRejected", refresh);
     socket.on("propertyUpdated", refresh);
+    socket.on("propertyDeleted", refresh);
     return () => {
       socket.off("propertyApproved", refresh);
       socket.off("propertyRejected", refresh);
       socket.off("propertyUpdated", refresh);
+      socket.off("propertyDeleted", refresh);
     };
   }, [socket]);
 

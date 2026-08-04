@@ -54,6 +54,10 @@ const createReview = asyncHandler(async (req, res) => {
 
   await recalculateAverageRating(property._id);
 
+  const io = req.app.get("io");
+  io.emit("reviewAdded", { reviewId: review._id, propertyId: property._id });
+  io.emit("propertyUpdated", { propertyId: property._id }); // rating average changed
+
   sendSuccess(res, 201, "Review submitted successfully.", { review });
 });
 
@@ -73,6 +77,10 @@ const updateReview = asyncHandler(async (req, res) => {
 
   await recalculateAverageRating(review.property);
 
+  const io = req.app.get("io");
+  io.emit("reviewUpdated", { reviewId: review._id, propertyId: review.property });
+  io.emit("propertyUpdated", { propertyId: review.property });
+
   sendSuccess(res, 200, "Review updated successfully.", { review });
 });
 
@@ -89,8 +97,13 @@ const deleteReview = asyncHandler(async (req, res) => {
   }
 
   const propertyId = review.property;
+  const reviewId = review._id;
   await review.deleteOne();
   await recalculateAverageRating(propertyId);
+
+  const io = req.app.get("io");
+  io.emit("reviewDeleted", { reviewId, propertyId });
+  io.emit("propertyUpdated", { propertyId });
 
   sendSuccess(res, 200, "Review deleted successfully.");
 });

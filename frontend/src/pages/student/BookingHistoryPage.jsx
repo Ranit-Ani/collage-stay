@@ -27,9 +27,13 @@ const BookingHistoryPage = () => {
     const refresh = () => load();
     socket.on("bookingAccepted", refresh);
     socket.on("bookingRejected", refresh);
+    socket.on("bookingCreated", refresh);
+    socket.on("bookingCancelled", refresh);
     return () => {
       socket.off("bookingAccepted", refresh);
       socket.off("bookingRejected", refresh);
+      socket.off("bookingCreated", refresh);
+      socket.off("bookingCancelled", refresh);
     };
   }, [socket]);
 

@@ -6,25 +6,42 @@ import Loader from "../../components/common/Loader";
 import StatCard from "../../components/common/StatCard";
 import { studentApi } from "../../api/endpoints";
 import { useAuth } from "../../context/AuthContext";
+import { useSocket } from "../../context/SocketContext";
 
 const StudentDashboard = () => {
   const { user } = useAuth();
+  const { socket } = useSocket();
   const [bookings, setBookings] = useState([]);
   const [favourites, setFavourites] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const load = async () => {
+    const [bRes, fRes] = await Promise.all([
+      studentApi.getBookingHistory(),
+      studentApi.getFavourites(),
+    ]);
+    setBookings(bRes.data.data.bookings);
+    setFavourites(fRes.data.data.favourites);
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  // Booking decisions update the overview cards instantly
   useEffect(() => {
-    const load = async () => {
-      const [bRes, fRes] = await Promise.all([
-        studentApi.getBookingHistory(),
-        studentApi.getFavourites(),
-      ]);
-      setBookings(bRes.data.data.bookings);
-      setFavourites(fRes.data.data.favourites);
-      setLoading(false);
+    if (!socket) return;
+    const refresh = () => load();
+    socket.on("bookingAccepted", refresh);
+    socket.on("bookingRejected", refresh);
+    socket.on("bookingCreated", refresh);
+    socket.on("bookingCancelled", refresh);
+    return () => {
+      socket.off("bookingAccepted", refresh);
+      socket.off("bookingRejected", refresh);
+      socket.off("bookingCreated", refresh);
+      socket.off("bookingCancelled", refresh);
     };
-    load();
-  }, []);
+  }, [socket]);
 
   if (loading) return <DashboardLayout><Loader /></DashboardLayout>;
 

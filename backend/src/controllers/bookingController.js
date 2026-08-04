@@ -66,6 +66,7 @@ const createBookingRequest = asyncHandler(async (req, res) => {
 
   const io = req.app.get("io");
   io.to(property.owner.toString()).emit("bookingRequested", { booking });
+  io.to(req.user._id.toString()).emit("bookingCreated", { booking }); // refresh the student's own other tabs
 
   await createNotification(io, {
     recipient: property.owner,
@@ -98,6 +99,7 @@ const cancelBookingRequest = asyncHandler(async (req, res) => {
 
   const io = req.app.get("io");
   io.to(booking.owner.toString()).emit("bookingRequested", { booking }); // refresh owner's list
+  io.to(booking.student.toString()).emit("bookingCancelled", { booking }); // refresh student's own other tabs
 
   sendSuccess(res, 200, "Booking request cancelled.", { booking });
 });
@@ -145,6 +147,7 @@ const acceptBookingRequest = asyncHandler(async (req, res) => {
 
   const io = req.app.get("io");
   io.to(booking.student.toString()).emit("bookingAccepted", { booking });
+  io.to(booking.owner.toString()).emit("bookingRequested", { booking }); // refresh owner's other tabs/devices
   io.emit("availabilityUpdated", {
     propertyId: property._id,
     totalSeats: property.availability.totalSeats,
@@ -183,6 +186,7 @@ const rejectBookingRequest = asyncHandler(async (req, res) => {
 
   const io = req.app.get("io");
   io.to(booking.student.toString()).emit("bookingRejected", { booking });
+  io.to(booking.owner.toString()).emit("bookingRequested", { booking }); // refresh owner's other tabs/devices
 
   await createNotification(io, {
     recipient: booking.student,

@@ -4,14 +4,24 @@ const User = require("../models/User");
 const { AppError } = require("./errorMiddleware");
 
 /**
- * Protects routes: verifies JWT from httpOnly cookie (or Bearer header as fallback),
- * attaches the authenticated user to req.user.
+ * Protects routes: verifies JWT from the Authorization Bearer header
+ * (falling back to the httpOnly cookie only if no header is present).
+ *
+ * Bearer is checked first on purpose: the frontend stores the token in
+ * sessionStorage, which is scoped per browser tab, so each tab can carry
+ * a different user's token even though they all share the same cookie jar.
+ * This is what lets someone be logged in as two different users in two
+ * tabs of the same browser at the same time.
  */
 const protect = asyncHandler(async (req, res, next) => {
-  let token = req.cookies?.[process.env.JWT_COOKIE_NAME || "cs_token"];
+  let token;
 
-  if (!token && req.headers.authorization?.startsWith("Bearer ")) {
+  if (req.headers.authorization?.startsWith("Bearer ")) {
     token = req.headers.authorization.split(" ")[1];
+  }
+
+  if (!token) {
+    token = req.cookies?.[process.env.JWT_COOKIE_NAME || "cs_token"];
   }
 
   if (!token) {

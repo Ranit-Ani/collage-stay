@@ -4,8 +4,10 @@ import DashboardLayout from "../../components/common/DashboardLayout";
 import Loader from "../../components/common/Loader";
 import RatingStars from "../../components/common/RatingStars";
 import { adminApi } from "../../api/endpoints";
+import { useSocket } from "../../context/SocketContext";
 
 const ManageReviewsPage = () => {
+  const { socket } = useSocket();
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -16,6 +18,19 @@ const ManageReviewsPage = () => {
   };
 
   useEffect(() => { load(); }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+    const refresh = () => load();
+    socket.on("reviewAdded", refresh);
+    socket.on("reviewUpdated", refresh);
+    socket.on("reviewDeleted", refresh);
+    return () => {
+      socket.off("reviewAdded", refresh);
+      socket.off("reviewUpdated", refresh);
+      socket.off("reviewDeleted", refresh);
+    };
+  }, [socket]);
 
   const handleDelete = async (id) => {
     if (!confirm("Delete this review?")) return;

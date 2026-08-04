@@ -3,8 +3,10 @@ import toast from "react-hot-toast";
 import DashboardLayout from "../../components/common/DashboardLayout";
 import Loader from "../../components/common/Loader";
 import { adminApi } from "../../api/endpoints";
+import { useSocket } from "../../context/SocketContext";
 
 const ManageStudentsPage = () => {
+  const { socket } = useSocket();
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -15,6 +17,21 @@ const ManageStudentsPage = () => {
   };
 
   useEffect(() => { load(); }, []);
+
+  // New sign-ups, blocks/unblocks (from this tab or another admin), and
+  // deletions all reflect here without a manual refresh
+  useEffect(() => {
+    if (!socket) return;
+    const refresh = () => load();
+    socket.on("newUserRegistered", refresh);
+    socket.on("userStatusChanged", refresh);
+    socket.on("userDeleted", refresh);
+    return () => {
+      socket.off("newUserRegistered", refresh);
+      socket.off("userStatusChanged", refresh);
+      socket.off("userDeleted", refresh);
+    };
+  }, [socket]);
 
   const handleToggleBlock = async (id) => {
     try {

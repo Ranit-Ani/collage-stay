@@ -46,7 +46,8 @@ const LocationPickerMap = ({ lat, lng, onChange }) => {
   const position = lat && lng ? [lat, lng] : null;
 
   const handleSearch = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
+    if (e && e.stopPropagation) e.stopPropagation();
     if (!query.trim()) return;
     setSearching(true);
     try {
@@ -69,17 +70,20 @@ const LocationPickerMap = ({ lat, lng, onChange }) => {
 
   return (
     <div className="space-y-2">
-      <form onSubmit={handleSearch} className="flex gap-2">
+      <div className="flex gap-2">
         <input
           className="input"
           placeholder="Search an address, area, or landmark..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleSearch(e);
+          }}
         />
-        <button type="submit" disabled={searching} className="btn-secondary shrink-0">
+        <button type="button" onClick={handleSearch} disabled={searching} className="btn-secondary shrink-0">
           <Search className="h-4 w-4" /> {searching ? "Searching..." : "Search"}
         </button>
-      </form>
+      </div>
       <p className="text-xs text-ink-500">
         Search for the address above, then fine-tune by clicking directly on the map to drop the pin.
       </p>
