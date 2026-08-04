@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Heart, History, Search } from "lucide-react";
+import { Heart, History, Search, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import DashboardLayout from "../../components/common/DashboardLayout";
 import Loader from "../../components/common/Loader";
+import StatCard from "../../components/common/StatCard";
 import { studentApi } from "../../api/endpoints";
 import { useAuth } from "../../context/AuthContext";
 
@@ -31,35 +32,33 @@ const StudentDashboard = () => {
 
   return (
     <DashboardLayout>
-      <h1 className="text-xl font-semibold text-ink-900 mb-1">Welcome back, {user?.fullName?.split(" ")[0]}</h1>
-      <p className="text-sm text-ink-500 mb-6">Here's what's happening with your accommodation search.</p>
+      <h1 className="page-heading">Welcome back, {user?.fullName?.split(" ")[0]}</h1>
+      <p className="page-subheading mb-6">Here's what's happening with your accommodation search.</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <div className="card p-5">
-          <p className="text-xs text-ink-500 mb-1">Pending Requests</p>
-          <p className="text-2xl font-semibold text-ink-900">{pendingCount}</p>
-        </div>
-        <div className="card p-5">
-          <p className="text-xs text-ink-500 mb-1">Total Bookings</p>
-          <p className="text-2xl font-semibold text-ink-900">{bookings.length}</p>
-        </div>
-        <div className="card p-5">
-          <p className="text-xs text-ink-500 mb-1">Saved Favourites</p>
-          <p className="text-2xl font-semibold text-ink-900">{favourites.length}</p>
-        </div>
+        <StatCard icon={Clock} label="Pending Requests" value={pendingCount} tone="amber" />
+        <StatCard icon={History} label="Total Bookings" value={bookings.length} />
+        <StatCard icon={Heart} label="Saved Favourites" value={favourites.length} tone="accent" />
       </div>
 
+      <p className="section-title">Quick Actions</p>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Link to="/search" className="card p-5 hover:shadow-card transition-shadow flex items-center gap-3">
-          <Search className="h-5 w-5 text-brand-600" />
+        <Link to="/search" className="card p-5 hover:shadow-card hover:-translate-y-0.5 transition-all flex items-center gap-3">
+          <div className="h-9 w-9 rounded-lg bg-brand-50 flex items-center justify-center">
+            <Search className="h-4 w-4 text-brand-600" />
+          </div>
           <span className="text-sm font-medium text-ink-800">Search Properties</span>
         </Link>
-        <Link to="/student/favourites" className="card p-5 hover:shadow-card transition-shadow flex items-center gap-3">
-          <Heart className="h-5 w-5 text-brand-600" />
+        <Link to="/student/favourites" className="card p-5 hover:shadow-card hover:-translate-y-0.5 transition-all flex items-center gap-3">
+          <div className="h-9 w-9 rounded-lg bg-brand-50 flex items-center justify-center">
+            <Heart className="h-4 w-4 text-brand-600" />
+          </div>
           <span className="text-sm font-medium text-ink-800">View Favourites</span>
         </Link>
-        <Link to="/student/bookings" className="card p-5 hover:shadow-card transition-shadow flex items-center gap-3">
-          <History className="h-5 w-5 text-brand-600" />
+        <Link to="/student/bookings" className="card p-5 hover:shadow-card hover:-translate-y-0.5 transition-all flex items-center gap-3">
+          <div className="h-9 w-9 rounded-lg bg-brand-50 flex items-center justify-center">
+            <History className="h-4 w-4 text-brand-600" />
+          </div>
           <span className="text-sm font-medium text-ink-800">Booking History</span>
         </Link>
       </div>

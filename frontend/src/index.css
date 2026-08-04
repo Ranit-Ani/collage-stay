@@ -5,38 +5,69 @@
 @layer base {
   html {
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   body {
     @apply bg-ink-50 text-ink-800 font-sans;
+    font-feature-settings: "cv11", "ss01";
+  }
+  h1, h2, h3, h4 {
+    @apply text-ink-900 font-semibold tracking-tight;
   }
   :focus-visible {
     @apply outline outline-2 outline-offset-2 outline-brand-500;
+  }
+  ::selection {
+    @apply bg-brand-100 text-brand-900;
   }
 }
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium tracking-tight transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98];
   }
   .btn-primary {
-    @apply btn bg-brand-600 text-white hover:bg-brand-700;
+    @apply btn bg-brand-600 text-white shadow-sm hover:bg-brand-700 hover:shadow-md;
   }
   .btn-secondary {
-    @apply btn bg-white text-ink-700 border border-ink-200 hover:bg-ink-50;
+    @apply btn bg-white text-ink-700 border border-ink-200 hover:bg-ink-50 hover:border-ink-300;
   }
   .btn-danger {
-    @apply btn bg-red-600 text-white hover:bg-red-700;
+    @apply btn bg-red-600 text-white shadow-sm hover:bg-red-700;
   }
   .card {
-    @apply bg-white rounded-xl shadow-soft border border-ink-100;
+    @apply bg-white rounded-xl shadow-soft border border-ink-100/80;
   }
   .input {
-    @apply w-full rounded-lg border border-ink-200 px-3.5 py-2.5 text-sm text-ink-800 placeholder-ink-400 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors;
+    @apply w-full rounded-lg border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-800 placeholder-ink-400 transition-colors focus:border-brand-500 focus:ring-4 focus:ring-brand-100 outline-none;
   }
   .label {
-    @apply block text-sm font-medium text-ink-700 mb-1.5;
+    @apply block text-xs font-semibold uppercase tracking-wide text-ink-500 mb-1.5;
   }
   .badge {
-    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold tracking-tight;
+  }
+  .section-title {
+    @apply text-xs font-semibold uppercase tracking-wider text-ink-400 mb-3;
+  }
+  .stat-card {
+    @apply card p-5 flex items-start justify-between gap-3;
+  }
+  .page-heading {
+    @apply text-2xl font-semibold text-ink-900 tracking-tight;
+  }
+  .page-subheading {
+    @apply text-sm text-ink-500 mt-1;
   }
 }
+
+@layer utilities {
+  .scrollbar-thin::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-ink-200 rounded-full;
+  }
+}
+

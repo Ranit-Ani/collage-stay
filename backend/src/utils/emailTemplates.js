@@ -30,19 +30,17 @@ const baseWrapper = (title, bodyHtml) => `
 </html>
 `;
 
-const verificationEmailTemplate = (fullName, verifyUrl) =>
+const verificationEmailTemplate = (fullName, otp) =>
   baseWrapper(
     "Verify your email",
     `
     <h2 style="margin:0 0 12px;color:#111827;font-size:20px;">Confirm your email address</h2>
     <p>Hi ${fullName},</p>
-    <p>Thanks for signing up on CollegeStay. Please confirm your email address to activate your account.</p>
+    <p>Thanks for signing up on CollegeStay. Enter this code in the app to verify your email:</p>
     <p style="text-align:center;margin:28px 0;">
-      <a href="${verifyUrl}" style="background:#2563eb;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:6px;font-weight:600;display:inline-block;">Verify Email</a>
+      <span style="display:inline-block;background:#f3f4f6;border-radius:8px;padding:16px 28px;font-size:32px;font-weight:700;letter-spacing:8px;color:#111827;">${otp}</span>
     </p>
-    <p>Or copy and paste this link into your browser:</p>
-    <p style="word-break:break-all;color:#2563eb;">${verifyUrl}</p>
-    <p>This link expires in 24 hours. If you did not create this account, you can safely ignore this email.</p>
+    <p>This code expires in 10 minutes. If you did not create this account, you can safely ignore this email.</p>
   `
   );
 

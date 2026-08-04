@@ -99,7 +99,7 @@ const EditPropertyPage = () => {
   return (
     <DashboardLayout>
       <div className="flex items-center gap-3 mb-6">
-        <h1 className="text-xl font-semibold text-ink-900">Edit Property</h1>
+        <h1 className="page-heading">Edit Property</h1>
         <StatusBadge status={property.status} />
       </div>
 

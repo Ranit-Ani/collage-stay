@@ -93,7 +93,7 @@ Nothing to sign up for, no billing, no key to configure.
 
 ## Core Flows Implemented
 
-- **Auth:** register → email verification (mandatory before login) → JWT httpOnly cookie login → forgot/reset password → logout
+- **Auth:** register → 6-digit email OTP verification (mandatory before login) → JWT httpOnly cookie login → forgot/reset password (link-based) → logout
 - **Roles:** Student, Home Owner, Admin — each with separate dashboards and protected routes
 - **Properties:** create (pending admin approval) → search/filter → detail view with free OpenStreetMap location → image gallery
 - **Booking:** student sends request → owner accepts/rejects → real-time status push via Socket.IO → notification created

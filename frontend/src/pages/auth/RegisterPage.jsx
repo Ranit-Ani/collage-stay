@@ -24,8 +24,8 @@ const RegisterPage = () => {
     setLoading(true);
     try {
       await authApi.register(form);
-      toast.success("Account created. Please check your email to verify.");
-      navigate("/login");
+      toast.success("Account created. Enter the code we emailed you to verify your account.");
+      navigate("/verify-otp", { state: { email: form.email } });
     } catch (err) {
       const apiErrors = err.response?.data?.errors;
       if (apiErrors) setErrors(apiErrors.map((e) => e.message));

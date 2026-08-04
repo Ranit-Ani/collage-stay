@@ -35,7 +35,7 @@ const MyPropertiesPage = () => {
   return (
     <DashboardLayout>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-semibold text-ink-900">My Properties</h1>
+        <h1 className="page-heading">My Properties</h1>
         <Link to="/owner/properties/new" className="btn-primary">
           <Plus className="h-4 w-4" /> Add Property
         </Link>

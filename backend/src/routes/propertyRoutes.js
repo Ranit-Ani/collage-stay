@@ -3,6 +3,7 @@ const router = express.Router();
 const { protect } = require("../middlewares/authMiddleware");
 const { authorize } = require("../middlewares/roleMiddleware");
 const upload = require("../middlewares/uploadMiddleware");
+const { parseJsonFields } = require("../middlewares/parseJsonFields");
 const { validate } = require("../middlewares/validateMiddleware");
 const { createPropertyValidator } = require("../validators/propertyValidator");
 const {
@@ -28,6 +29,7 @@ router.post(
   protect,
   authorize("homeowner"),
   upload.array("images", 10),
+  parseJsonFields(["address", "location", "pricing", "availability", "amenities", "rules", "messDetails"]),
   validate(createPropertyValidator),
   createProperty
 );

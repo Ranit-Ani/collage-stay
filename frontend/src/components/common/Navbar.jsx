@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Home, Menu, X, Bell, LogOut, User } from "lucide-react";
+import { Home, Menu, X, Bell, LogOut } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
 const roleHome = {
@@ -20,32 +20,36 @@ const Navbar = () => {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white border-b border-ink-100">
+    <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-ink-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 font-semibold text-ink-900">
-          <div className="h-8 w-8 rounded-lg bg-brand-600 flex items-center justify-center">
+        <Link to="/" className="flex items-center gap-2.5 font-semibold text-ink-900 tracking-tight">
+          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-sm">
             <Home className="h-4 w-4 text-white" />
           </div>
-          CollegeStay
+          <span className="text-[15px]">CollegeStay</span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-ink-600">
-          <Link to="/search" className="hover:text-ink-900">Find a Place</Link>
+        <nav className="hidden md:flex items-center gap-1 text-sm font-medium text-ink-600">
+          <Link to="/search" className="px-3 py-2 rounded-lg hover:bg-ink-50 hover:text-ink-900 transition-colors">
+            Find a Place
+          </Link>
           {user && (
-            <Link to={roleHome[user.role] || "/"} className="hover:text-ink-900">
+            <Link to={roleHome[user.role] || "/"} className="px-3 py-2 rounded-lg hover:bg-ink-50 hover:text-ink-900 transition-colors">
               Dashboard
             </Link>
           )}
         </nav>
 
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-2">
           {user ? (
             <>
-              <button className="p-2 rounded-lg hover:bg-ink-50 text-ink-500" aria-label="Notifications">
+              <button className="p-2 rounded-lg hover:bg-ink-50 text-ink-500 transition-colors" aria-label="Notifications">
                 <Bell className="h-5 w-5" />
               </button>
-              <div className="flex items-center gap-2 text-sm text-ink-700">
-                <User className="h-4 w-4" />
+              <div className="flex items-center gap-2 text-sm text-ink-700 pl-2 pr-1 font-medium">
+                <div className="h-7 w-7 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-semibold">
+                  {user.fullName?.[0]?.toUpperCase()}
+                </div>
                 {user.fullName?.split(" ")[0]}
               </div>
               <button onClick={handleLogout} className="btn-secondary !py-2 !px-3">

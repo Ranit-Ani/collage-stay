@@ -15,13 +15,15 @@ const { protect } = require("../middlewares/authMiddleware");
 const {
   registerValidator,
   loginValidator,
+  verifyEmailValidator,
+  resendVerificationValidator,
   forgotPasswordValidator,
   resetPasswordValidator,
 } = require("../validators/authValidator");
 
 router.post("/register", validate(registerValidator), register);
-router.get("/verify-email/:token", verifyEmail);
-router.post("/resend-verification", resendVerification);
+router.post("/verify-email", validate(verifyEmailValidator), verifyEmail);
+router.post("/resend-verification", validate(resendVerificationValidator), resendVerification);
 router.post("/login", validate(loginValidator), login);
 router.post("/logout", protect, logout);
 router.get("/me", protect, getMe);

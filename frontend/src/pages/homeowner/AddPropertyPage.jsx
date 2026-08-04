@@ -60,7 +60,7 @@ const AddPropertyPage = () => {
 
   return (
     <DashboardLayout>
-      <h1 className="text-xl font-semibold text-ink-900 mb-6">Add Property</h1>
+      <h1 className="page-heading mb-6">Add Property</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6 max-w-3xl">
         {/* Basic Info */}

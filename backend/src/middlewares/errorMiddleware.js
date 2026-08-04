@@ -46,6 +46,10 @@ const errorMiddleware = (err, req, res, next) => {
 
   if (process.env.NODE_ENV === "development") {
     console.error(err);
+  } else if (statusCode >= 500) {
+    // In production, only log unexpected server errors — not routine 4xx
+    // responses like an unauthenticated /auth/me check or a 404 lookup.
+    console.error(err);
   }
 
   res.status(statusCode).json({

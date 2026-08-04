@@ -53,7 +53,7 @@ const OwnerBookingRequestsPage = () => {
 
   return (
     <DashboardLayout>
-      <h1 className="text-xl font-semibold text-ink-900 mb-4">Booking Requests</h1>
+      <h1 className="page-heading mb-4">Booking Requests</h1>
 
       <div className="flex gap-2 mb-6">
         {TABS.map((t) => (

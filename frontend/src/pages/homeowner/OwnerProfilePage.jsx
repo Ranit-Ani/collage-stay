@@ -48,7 +48,7 @@ const OwnerProfilePage = () => {
 
   return (
     <DashboardLayout>
-      <h1 className="text-xl font-semibold text-ink-900 mb-6">My Profile</h1>
+      <h1 className="page-heading mb-6">My Profile</h1>
 
       <div className="card p-6 max-w-xl">
         <div className="flex items-center gap-4 mb-6">

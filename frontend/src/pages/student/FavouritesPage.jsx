@@ -32,7 +32,7 @@ const FavouritesPage = () => {
 
   return (
     <DashboardLayout>
-      <h1 className="text-xl font-semibold text-ink-900 mb-6">Favourite Properties</h1>
+      <h1 className="page-heading mb-6">Favourite Properties</h1>
 
       {favourites.length === 0 ? (
         <div className="card p-10 text-center text-ink-500 flex flex-col items-center gap-2">

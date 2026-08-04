@@ -26,7 +26,11 @@ const LoginPage = () => {
       toast.success("Welcome back!");
       navigate(redirectTo, { replace: true });
     } catch (err) {
-      toast.error(err.response?.data?.message || "Login failed");
+      const message = err.response?.data?.message || "Login failed";
+      toast.error(message);
+      if (message.toLowerCase().includes("verify")) {
+        navigate("/verify-otp", { state: { email: form.email } });
+      }
     } finally {
       setLoading(false);
     }

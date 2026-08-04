@@ -47,7 +47,7 @@ const BookingHistoryPage = () => {
 
   return (
     <DashboardLayout>
-      <h1 className="text-xl font-semibold text-ink-900 mb-6">Booking History</h1>
+      <h1 className="page-heading mb-6">Booking History</h1>
 
       {bookings.length === 0 ? (
         <div className="card p-10 text-center text-ink-500">You haven't made any booking requests yet.</div>

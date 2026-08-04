@@ -28,57 +28,67 @@ const register = asyncHandler(async (req, res) => {
     role: role === "homeowner" ? "homeowner" : "student",
   });
 
-  const rawToken = user.generateEmailVerificationToken();
+  const otp = user.generateEmailVerificationOTP();
   await user.save();
-
-  const verifyUrl = `${process.env.CLIENT_URL}/verify-email/${rawToken}`;
 
   try {
     await sendEmail({
       to: user.email,
-      subject: "Verify your CollegeStay account",
-      html: verificationEmailTemplate(user.fullName, verifyUrl),
+      subject: "Your CollegeStay verification code",
+      html: verificationEmailTemplate(user.fullName, otp),
     });
   } catch (err) {
-    // Roll back verification token generation state if email fails, but keep the account
     console.error("Failed to send verification email:", err.message);
   }
 
   sendSuccess(
     res,
     201,
-    "Registration successful. Please check your email to verify your account.",
+    "Registration successful. We've emailed you a 6-digit verification code.",
     { userId: user._id, email: user.email }
   );
 });
 
-// @desc    Verify email using token from email link
-// @route   GET /api/auth/verify-email/:token
+// @desc    Verify email using the 6-digit OTP sent by email
+// @route   POST /api/auth/verify-email
 // @access  Public
 const verifyEmail = asyncHandler(async (req, res) => {
-  const hashedToken = crypto
-    .createHash("sha256")
-    .update(req.params.token)
-    .digest("hex");
+  const { email, otp } = req.body;
 
-  const user = await User.findOne({
-    emailVerificationToken: hashedToken,
-    emailVerificationExpires: { $gt: Date.now() },
-  }).select("+emailVerificationToken +emailVerificationExpires");
+  const user = await User.findOne({ email }).select(
+    "+emailVerificationOTP +emailVerificationOTPExpires +emailVerificationAttempts"
+  );
+  if (!user) throw new AppError("No account found with this email.", 404);
+  if (user.isEmailVerified) throw new AppError("Email is already verified.", 400);
 
-  if (!user) {
-    throw new AppError("Verification link is invalid or has expired.", 400);
+  if (!user.emailVerificationOTP || !user.emailVerificationOTPExpires || user.emailVerificationOTPExpires < Date.now()) {
+    throw new AppError("This code has expired. Please request a new one.", 400);
+  }
+  if (user.emailVerificationAttempts >= 5) {
+    throw new AppError("Too many incorrect attempts. Please request a new code.", 429);
+  }
+
+  const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
+  if (hashedOtp !== user.emailVerificationOTP) {
+    user.emailVerificationAttempts += 1;
+    await user.save();
+    const remaining = 5 - user.emailVerificationAttempts;
+    throw new AppError(
+      `Incorrect code. ${remaining > 0 ? `${remaining} attempt(s) remaining.` : "Please request a new code."}`,
+      400
+    );
   }
 
   user.isEmailVerified = true;
-  user.emailVerificationToken = undefined;
-  user.emailVerificationExpires = undefined;
+  user.emailVerificationOTP = undefined;
+  user.emailVerificationOTPExpires = undefined;
+  user.emailVerificationAttempts = 0;
   await user.save();
 
   sendSuccess(res, 200, "Email verified successfully. You can now log in.");
 });
 
-// @desc    Resend verification email
+// @desc    Resend a fresh verification OTP
 // @route   POST /api/auth/resend-verification
 // @access  Public
 const resendVerification = asyncHandler(async (req, res) => {
@@ -88,17 +98,16 @@ const resendVerification = asyncHandler(async (req, res) => {
   if (!user) throw new AppError("No account found with this email.", 404);
   if (user.isEmailVerified) throw new AppError("Email is already verified.", 400);
 
-  const rawToken = user.generateEmailVerificationToken();
+  const otp = user.generateEmailVerificationOTP();
   await user.save();
 
-  const verifyUrl = `${process.env.CLIENT_URL}/verify-email/${rawToken}`;
   await sendEmail({
     to: user.email,
-    subject: "Verify your CollegeStay account",
-    html: verificationEmailTemplate(user.fullName, verifyUrl),
+    subject: "Your CollegeStay verification code",
+    html: verificationEmailTemplate(user.fullName, otp),
   });
 
-  sendSuccess(res, 200, "Verification email resent. Please check your inbox.");
+  sendSuccess(res, 200, "A new verification code has been sent to your email.");
 });
 
 // @desc    Login user

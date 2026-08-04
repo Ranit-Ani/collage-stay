@@ -35,6 +35,15 @@ app.use(xss());
 app.use(morgan(process.env.NODE_ENV === "development" ? "dev" : "combined"));
 app.use(rateLimiter);
 
+// Root - friendly response for anyone hitting the bare backend URL
+// (also useful as Render's health check target if you point it at "/")
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "CollegeStay API is running. See /api/health for a health check.",
+  });
+});
+
 // Health check
 app.get("/api/health", (req, res) => {
   res.status(200).json({ success: true, message: "CollegeStay API is healthy" });

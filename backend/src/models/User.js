@@ -35,8 +35,9 @@ const userSchema = new mongoose.Schema(
 
     // Verification / status
     isEmailVerified: { type: Boolean, default: false },
-    emailVerificationToken: { type: String, select: false },
-    emailVerificationExpires: { type: Date, select: false },
+    emailVerificationOTP: { type: String, select: false },
+    emailVerificationOTPExpires: { type: Date, select: false },
+    emailVerificationAttempts: { type: Number, default: 0, select: false },
     passwordResetToken: { type: String, select: false },
     passwordResetExpires: { type: Date, select: false },
 
@@ -57,14 +58,13 @@ userSchema.methods.comparePassword = function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-userSchema.methods.generateEmailVerificationToken = function () {
-  const rawToken = crypto.randomBytes(32).toString("hex");
-  this.emailVerificationToken = crypto
-    .createHash("sha256")
-    .update(rawToken)
-    .digest("hex");
-  this.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24h
-  return rawToken;
+userSchema.methods.generateEmailVerificationOTP = function () {
+  // 6-digit numeric code, e.g. "042817"
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  this.emailVerificationOTP = crypto.createHash("sha256").update(otp).digest("hex");
+  this.emailVerificationOTPExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+  this.emailVerificationAttempts = 0;
+  return otp;
 };
 
 userSchema.methods.generatePasswordResetToken = function () {
@@ -80,8 +80,9 @@ userSchema.methods.generatePasswordResetToken = function () {
 userSchema.methods.toSafeObject = function () {
   const obj = this.toObject();
   delete obj.password;
-  delete obj.emailVerificationToken;
-  delete obj.emailVerificationExpires;
+  delete obj.emailVerificationOTP;
+  delete obj.emailVerificationOTPExpires;
+  delete obj.emailVerificationAttempts;
   delete obj.passwordResetToken;
   delete obj.passwordResetExpires;
   return obj;

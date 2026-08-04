@@ -40,25 +40,36 @@ const linksByRole = {
 
 const Sidebar = ({ role }) => {
   const links = linksByRole[role] || [];
+  const roleLabel = { student: "Student", homeowner: "Home Owner", admin: "Admin" }[role];
 
   return (
-    <aside className="w-60 shrink-0 hidden lg:block border-r border-ink-100 bg-white min-h-[calc(100vh-4rem)] py-6 px-3">
-      <nav className="space-y-1">
+    <aside className="w-64 shrink-0 hidden lg:block border-r border-ink-100 bg-white min-h-[calc(100vh-4rem)] py-6 px-4">
+      {roleLabel && (
+        <p className="px-3 mb-3 text-[11px] font-semibold uppercase tracking-wider text-ink-400">
+          {roleLabel} Menu
+        </p>
+      )}
+      <nav className="space-y-0.5">
         {links.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}
             end
             className={({ isActive }) =>
-              `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+              `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors relative ${
                 isActive
                   ? "bg-brand-50 text-brand-700"
                   : "text-ink-600 hover:bg-ink-50 hover:text-ink-900"
               }`
             }
           >
-            <Icon className="h-4 w-4" />
-            {label}
+            {({ isActive }) => (
+              <>
+                {isActive && <span className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full bg-brand-600" />}
+                <Icon className="h-4 w-4" />
+                {label}
+              </>
+            )}
           </NavLink>
         ))}
       </nav>

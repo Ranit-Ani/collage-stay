@@ -3,7 +3,7 @@ import api from "./axios";
 // ---------- Auth ----------
 export const authApi = {
   register: (data) => api.post("/auth/register", data),
-  verifyEmail: (token) => api.get(`/auth/verify-email/${token}`),
+  verifyEmail: (data) => api.post("/auth/verify-email", data), // { email, otp }
   resendVerification: (email) => api.post("/auth/resend-verification", { email }),
   login: (data) => api.post("/auth/login", data),
   logout: () => api.post("/auth/logout"),

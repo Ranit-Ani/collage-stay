@@ -32,7 +32,7 @@ const ManageReviewsPage = () => {
 
   return (
     <DashboardLayout>
-      <h1 className="text-xl font-semibold text-ink-900 mb-6">Manage Reviews</h1>
+      <h1 className="page-heading mb-6">Manage Reviews</h1>
 
       {reviews.length === 0 ? (
         <div className="card p-10 text-center text-ink-500">No reviews submitted yet.</div>

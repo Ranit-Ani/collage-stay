@@ -40,7 +40,7 @@ const ManageHomeOwnersPage = () => {
 
   return (
     <DashboardLayout>
-      <h1 className="text-xl font-semibold text-ink-900 mb-6">Manage Home Owners</h1>
+      <h1 className="page-heading mb-6">Manage Home Owners</h1>
 
       <div className="card overflow-hidden">
         <table className="w-full text-sm">
