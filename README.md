@@ -9,7 +9,7 @@ home owners for rooms, hostels, PGs, flats, and mess services.
 - **Backend:** Node.js, Express.js, MVC architecture, Socket.IO
 - **Database:** MongoDB Atlas (Mongoose)
 - **Auth:** JWT in httpOnly cookies, bcrypt password hashing, mandatory email verification
-- **Email:** Brevo SMTP via Nodemailer
+- **Email:** Brevo Transactional Email API (HTTPS — avoids SMTP ports many hosts block)
 - **Images:** Cloudinary
 - **Deployment:** Render (frontend + backend), MongoDB Atlas (database)
 
@@ -83,7 +83,7 @@ npm run dev              # starts on http://localhost:5173
 | Service | Used for | Where to configure |
 |---|---|---|
 | MongoDB Atlas | Database | `backend/.env` → `MONGO_URI` |
-| Brevo (Sendinblue) | Transactional email (verification, password reset) | `backend/.env` → `BREVO_SMTP_*`, `BREVO_API_KEY` |
+| Brevo (Sendinblue) | Transactional email (verification OTP, password reset) | `backend/.env` → `BREVO_API_KEY`, `EMAIL_USER`, `EMAIL_FROM_NAME` |
 | Cloudinary | Property & profile image storage | `backend/.env` → `CLOUDINARY_*` |
 
 **Maps require no account or API key.** Location display and picking use
