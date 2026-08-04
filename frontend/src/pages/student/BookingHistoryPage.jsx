@@ -54,20 +54,20 @@ const BookingHistoryPage = () => {
       ) : (
         <div className="space-y-4">
           {bookings.map((b) => (
-            <div key={b._id} className="card p-5 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
+            <div key={b._id} className="card p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+              <div className="flex items-center gap-4 min-w-0 flex-1">
                 <img
                   src={b.property?.images?.[0]?.url || "https://placehold.co/80x80"}
                   alt=""
-                  className="h-16 w-16 rounded-lg object-cover"
+                  className="h-16 w-16 rounded-lg object-cover shrink-0"
                 />
-                <div>
-                  <p className="font-medium text-ink-900">{b.property?.propertyName}</p>
-                  <p className="text-xs text-ink-500">{b.property?.address?.area}, {b.property?.address?.city}</p>
-                  <p className="text-xs text-ink-500 mt-1">Owner: {b.owner?.fullName}</p>
+                <div className="min-w-0">
+                  <p className="font-medium text-ink-900 truncate">{b.property?.propertyName}</p>
+                  <p className="text-xs text-ink-500 truncate">{b.property?.address?.area}, {b.property?.address?.city}</p>
+                  <p className="text-xs text-ink-500 mt-1 truncate">Owner: {b.owner?.fullName}</p>
                 </div>
               </div>
-              <div className="flex flex-col items-end gap-2">
+              <div className="flex items-center justify-between sm:flex-col sm:items-end gap-2 shrink-0">
                 <StatusBadge status={b.status} />
                 {b.status === "Pending" && (
                   <button onClick={() => handleCancel(b._id)} className="text-xs text-red-600 font-medium">

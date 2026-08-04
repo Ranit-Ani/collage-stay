@@ -23,9 +23,13 @@ const OwnerDashboard = () => {
     const refresh = () => load();
     socket.on("bookingRequested", refresh);
     socket.on("availabilityUpdated", refresh);
+    socket.on("propertyApproved", refresh);
+    socket.on("propertyRejected", refresh);
     return () => {
       socket.off("bookingRequested", refresh);
       socket.off("availabilityUpdated", refresh);
+      socket.off("propertyApproved", refresh);
+      socket.off("propertyRejected", refresh);
     };
   }, [socket]);
 

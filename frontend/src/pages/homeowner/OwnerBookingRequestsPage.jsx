@@ -55,12 +55,12 @@ const OwnerBookingRequestsPage = () => {
     <DashboardLayout>
       <h1 className="page-heading mb-4">Booking Requests</h1>
 
-      <div className="flex gap-2 mb-6">
+      <div className="flex gap-2 mb-6 overflow-x-auto scrollbar-thin pb-1">
         {TABS.map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`badge border ${
+            className={`badge border shrink-0 ${
               tab === t ? "bg-brand-600 text-white border-brand-600" : "bg-white text-ink-600 border-ink-200"
             }`}
           >
@@ -76,20 +76,20 @@ const OwnerBookingRequestsPage = () => {
       ) : (
         <div className="space-y-4">
           {bookings.map((b) => (
-            <div key={b._id} className="card p-5 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
+            <div key={b._id} className="card p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
                 {b.student?.profilePicture?.url ? (
-                  <img src={b.student.profilePicture.url} alt="" className="h-12 w-12 rounded-full object-cover" />
+                  <img src={b.student.profilePicture.url} alt="" className="h-12 w-12 rounded-full object-cover shrink-0" />
                 ) : (
-                  <div className="h-12 w-12 rounded-full bg-ink-100" />
+                  <div className="h-12 w-12 rounded-full bg-ink-100 shrink-0" />
                 )}
-                <div>
-                  <p className="font-medium text-ink-900">{b.student?.fullName}</p>
-                  <p className="text-xs text-ink-500">{b.student?.email} · {b.student?.phone}</p>
-                  <p className="text-xs text-ink-500 mt-1">For: {b.property?.propertyName}</p>
+                <div className="min-w-0">
+                  <p className="font-medium text-ink-900 truncate">{b.student?.fullName}</p>
+                  <p className="text-xs text-ink-500 truncate">{b.student?.email} · {b.student?.phone}</p>
+                  <p className="text-xs text-ink-500 mt-1 truncate">For: {b.property?.propertyName}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
                 <StatusBadge status={b.status} />
                 {b.status === "Pending" && (
                   <div className="flex gap-2">

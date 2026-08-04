@@ -52,6 +52,7 @@ const PropertyDetailsPage = () => {
   }, [socket, id]);
 
   const handleBookingRequest = async () => {
+    if (requesting) return; // guards against a fast double-click firing two requests
     if (!user) return toast.error("Please log in as a student to send a booking request.");
     setRequesting(true);
     try {

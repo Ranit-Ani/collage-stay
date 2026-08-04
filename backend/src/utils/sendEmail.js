@@ -8,6 +8,11 @@ const transporter = nodemailer.createTransport({
     user: process.env.BREVO_SMTP_USER,
     pass: process.env.BREVO_SMTP_PASS,
   },
+  // Fail fast instead of hanging if Brevo is unreachable or credentials are wrong —
+  // without these, a bad SMTP config can hang a request for minutes.
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 10000,
 });
 
 /**

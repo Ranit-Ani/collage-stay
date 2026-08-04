@@ -31,22 +31,23 @@ const register = asyncHandler(async (req, res) => {
   const otp = user.generateEmailVerificationOTP();
   await user.save();
 
-  try {
-    await sendEmail({
-      to: user.email,
-      subject: "Your CollegeStay verification code",
-      html: verificationEmailTemplate(user.fullName, otp),
-    });
-  } catch (err) {
-    console.error("Failed to send verification email:", err.message);
-  }
-
+  // Respond immediately — don't make the user wait on SMTP, which can be slow
+  // or hang if Brevo is misconfigured. The email is fired in the background;
+  // if it fails, the "Resend code" button on the OTP page covers that.
   sendSuccess(
     res,
     201,
     "Registration successful. We've emailed you a 6-digit verification code.",
     { userId: user._id, email: user.email }
   );
+
+  sendEmail({
+    to: user.email,
+    subject: "Your CollegeStay verification code",
+    html: verificationEmailTemplate(user.fullName, otp),
+  }).catch((err) => {
+    console.error("Failed to send verification email:", err.message);
+  });
 });
 
 // @desc    Verify email using the 6-digit OTP sent by email

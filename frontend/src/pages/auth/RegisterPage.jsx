@@ -29,7 +29,7 @@ const RegisterPage = () => {
     } catch (err) {
       const apiErrors = err.response?.data?.errors;
       if (apiErrors) setErrors(apiErrors.map((e) => e.message));
-      else toast.error(err.response?.data?.message || "Registration failed");
+      else toast.error(err.response?.data?.message || err.message || "Registration failed");
     } finally {
       setLoading(false);
     }

@@ -32,22 +32,37 @@ const createBookingRequest = asyncHandler(async (req, res) => {
     throw new AppError("No seats available for this property.", 400);
   }
 
-  const existingPending = await BookingRequest.findOne({
+  const existingActive = await BookingRequest.findOne({
     student: req.user._id,
     property: propertyId,
-    status: "Pending",
+    status: { $in: ["Pending", "Accepted"] },
   });
-  if (existingPending) {
-    throw new AppError("You already have a pending request for this property.", 409);
+  if (existingActive) {
+    throw new AppError(
+      existingActive.status === "Accepted"
+        ? "You already have an accepted booking for this property."
+        : "You already have a pending request for this property.",
+      409
+    );
   }
 
-  const booking = await BookingRequest.create({
-    student: req.user._id,
-    property: propertyId,
-    owner: property.owner,
-    message,
-    moveInDate,
-  });
+  let booking;
+  try {
+    booking = await BookingRequest.create({
+      student: req.user._id,
+      property: propertyId,
+      owner: property.owner,
+      message,
+      moveInDate,
+    });
+  } catch (err) {
+    // Belt-and-suspenders: if two requests race each other and both pass the
+    // check above, the database's unique partial index rejects the second one.
+    if (err.code === 11000) {
+      throw new AppError("You already have an active request for this property.", 409);
+    }
+    throw err;
+  }
 
   const io = req.app.get("io");
   io.to(property.owner.toString()).emit("bookingRequested", { booking });
