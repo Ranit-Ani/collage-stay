@@ -96,11 +96,20 @@ Nothing to sign up for, no billing, no key to configure.
 - **Auth:** register → 6-digit email OTP verification (mandatory before login) → JWT httpOnly cookie login → forgot/reset password (link-based) → logout
 - **Roles:** Student, Home Owner, Admin — each with separate dashboards and protected routes
 - **Properties:** create (pending admin approval) → search/filter → detail view with free OpenStreetMap location → image gallery
-- **Booking:** student sends request → owner accepts/rejects → real-time status push via Socket.IO → notification created
+- **Booking lifecycle:** `Pending → Accepted → Confirmed → Move-in Pending → Occupied → Vacate Requested → Completed`,
+  with `Rejected`, `Cancelled by Student`, `Cancelled by Owner`, and `Expired` side branches. The owner accepts a
+  request (reserving the seat), the student pays the security deposit online (sandboxed, gateway-ready — see
+  `backend/src/services/paymentService.js`) or offline (owner manually verifies), the owner confirms move-in, and
+  either side can drive the vacate → complete step at the end, which frees the seat automatically. A background
+  check (`backend/src/services/bookingService.js`, run on a timer from `server.js`) auto-expires unpaid bookings
+  past their payment deadline and auto-promotes paid bookings to "Move-in Pending" once the move-in date arrives.
+  Every transition is recorded on the booking's `timeline` and pushed live over Socket.IO plus an in-app
+  notification.
 - **Reviews:** one review per student per property, average rating recalculated on every change
 - **Admin:** approve/reject listings, block/delete users, moderate reviews, dashboard statistics
 - **Real-time (Socket.IO events):** `propertyUpdated`, `availabilityUpdated`, `bookingRequested`, `bookingAccepted`,
-  `bookingRejected`, `notificationReceived`, `propertyApproved`, `propertyRejected`
+  `bookingRejected`, `bookingUpdated` (generic — fires on every booking lifecycle transition), `notificationReceived`,
+  `propertyApproved`, `propertyRejected`
 
 ## Security Measures
 

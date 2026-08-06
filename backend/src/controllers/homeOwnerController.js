@@ -49,10 +49,21 @@ const uploadProfilePicture = asyncHandler(async (req, res) => {
 const getDashboardStats = asyncHandler(async (req, res) => {
   const ownerId = req.user._id;
 
-  const [totalProperties, approvedProperties, pendingRequests, properties] = await Promise.all([
+  const [
+    totalProperties,
+    approvedProperties,
+    pendingRequests,
+    awaitingPaymentVerification,
+    vacateRequests,
+    occupiedBookings,
+    properties,
+  ] = await Promise.all([
     Property.countDocuments({ owner: ownerId }),
     Property.countDocuments({ owner: ownerId, status: "approved" }),
     BookingRequest.countDocuments({ owner: ownerId, status: "Pending" }),
+    BookingRequest.countDocuments({ owner: ownerId, "payment.status": "Awaiting Verification" }),
+    BookingRequest.countDocuments({ owner: ownerId, status: "Vacate Requested" }),
+    BookingRequest.countDocuments({ owner: ownerId, status: "Occupied" }),
     Property.find({ owner: ownerId }),
   ]);
 
@@ -63,6 +74,12 @@ const getDashboardStats = asyncHandler(async (req, res) => {
     totalProperties,
     approvedProperties,
     pendingRequests,
+    // Bookings that need some action from the owner right now: new requests,
+    // offline payments to verify, and vacate requests to approve/reject.
+    needsAttention: pendingRequests + awaitingPaymentVerification + vacateRequests,
+    awaitingPaymentVerification,
+    vacateRequests,
+    occupiedBookings,
     totalSeats,
     occupiedSeats,
     availableSeats: Math.max(totalSeats - occupiedSeats, 0),

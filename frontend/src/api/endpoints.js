@@ -56,10 +56,26 @@ export const homeOwnerApi = {
 // ---------- Bookings ----------
 export const bookingApi = {
   create: (data) => api.post("/bookings", data),
-  cancel: (id) => api.patch(`/bookings/${id}/cancel`),
+  cancel: (id, reason) => api.patch(`/bookings/${id}/cancel`, { reason }),
+  cancelByOwner: (id, reason) => api.patch(`/bookings/${id}/cancel-by-owner`, { reason }),
   getOwnerRequests: (status) => api.get("/bookings/owner", { params: { status } }),
+  getById: (id) => api.get(`/bookings/${id}`),
   accept: (id) => api.patch(`/bookings/${id}/accept`),
-  reject: (id) => api.patch(`/bookings/${id}/reject`),
+  reject: (id, reason) => api.patch(`/bookings/${id}/reject`, { reason }),
+
+  // Security deposit payment
+  initiateOnlinePayment: (id) => api.post(`/bookings/${id}/payment/online/initiate`),
+  verifyOnlinePayment: (id, data) => api.post(`/bookings/${id}/payment/online/verify`, data),
+  submitOfflinePayment: (id, note) => api.post(`/bookings/${id}/payment/offline/submit`, { note }),
+  verifyOfflinePayment: (id, data) => api.patch(`/bookings/${id}/payment/offline/verify`, data),
+
+  // Move-in
+  confirmMoveIn: (id) => api.patch(`/bookings/${id}/movein/confirm`),
+
+  // Vacate
+  requestVacate: (id, reason) => api.patch(`/bookings/${id}/vacate/request`, { reason }),
+  approveVacate: (id) => api.patch(`/bookings/${id}/vacate/approve`),
+  rejectVacate: (id, reason) => api.patch(`/bookings/${id}/vacate/reject`, { reason }),
 };
 
 // ---------- Reviews ----------

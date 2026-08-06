@@ -106,6 +106,10 @@ propertySchema.virtual("availableSeats").get(function () {
   return Math.max(this.availability.totalSeats - this.availability.occupiedSeats, 0);
 });
 
+propertySchema.virtual("isFullyOccupied").get(function () {
+  return this.availability.totalSeats - this.availability.occupiedSeats <= 0;
+});
+
 propertySchema.set("toJSON", { virtuals: true });
 propertySchema.set("toObject", { virtuals: true });
 

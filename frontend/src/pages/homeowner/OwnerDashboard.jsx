@@ -22,12 +22,14 @@ const OwnerDashboard = () => {
     if (!socket) return;
     const refresh = () => load();
     socket.on("bookingRequested", refresh);
+    socket.on("bookingUpdated", refresh);
     socket.on("availabilityUpdated", refresh);
     socket.on("propertyApproved", refresh);
     socket.on("propertyRejected", refresh);
     socket.on("propertyDeleted", refresh);
     return () => {
       socket.off("bookingRequested", refresh);
+      socket.off("bookingUpdated", refresh);
       socket.off("availabilityUpdated", refresh);
       socket.off("propertyApproved", refresh);
       socket.off("propertyRejected", refresh);
@@ -44,7 +46,9 @@ const OwnerDashboard = () => {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
         <StatCard icon={Home} label="Total Properties" value={stats.totalProperties} />
         <StatCard icon={CheckCircle2} label="Approved" value={stats.approvedProperties} tone="accent" />
-        <StatCard icon={ClipboardList} label="Pending Requests" value={stats.pendingRequests} tone="amber" />
+        <Link to="/owner/bookings">
+          <StatCard icon={ClipboardList} label="Needs Attention" value={stats.needsAttention ?? stats.pendingRequests} tone="amber" />
+        </Link>
         <StatCard icon={Users} label="Available Seats" value={stats.availableSeats} />
       </div>
 

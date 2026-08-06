@@ -35,17 +35,21 @@ const StudentDashboard = () => {
     socket.on("bookingRejected", refresh);
     socket.on("bookingCreated", refresh);
     socket.on("bookingCancelled", refresh);
+    socket.on("bookingUpdated", refresh);
     return () => {
       socket.off("bookingAccepted", refresh);
       socket.off("bookingRejected", refresh);
       socket.off("bookingCreated", refresh);
       socket.off("bookingCancelled", refresh);
+      socket.off("bookingUpdated", refresh);
     };
   }, [socket]);
 
   if (loading) return <DashboardLayout><Loader /></DashboardLayout>;
 
-  const pendingCount = bookings.filter((b) => b.status === "Pending").length;
+  const actionNeededCount = bookings.filter(
+    (b) => b.status === "Pending" || (b.status === "Accepted" && b.payment?.status !== "Awaiting Verification")
+  ).length;
 
   return (
     <DashboardLayout>
@@ -53,7 +57,9 @@ const StudentDashboard = () => {
       <p className="page-subheading mb-6">Here's what's happening with your accommodation search.</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <StatCard icon={Clock} label="Pending Requests" value={pendingCount} tone="amber" />
+        <Link to="/student/bookings">
+          <StatCard icon={Clock} label="Needs Your Action" value={actionNeededCount} tone="amber" />
+        </Link>
         <StatCard icon={History} label="Total Bookings" value={bookings.length} />
         <StatCard icon={Heart} label="Saved Favourites" value={favourites.length} tone="accent" />
       </div>
